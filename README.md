@@ -1,5 +1,4 @@
 # datadeerApp
-DataDeer app
 
 This is an app I made for my website, DataDeer.net
 
