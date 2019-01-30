@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Datadeer</string>
+    <string name="go_to_datadeer_net">Go to DataDeer.net</string>
+    <string name="loading">Loading...</string>
+</resources>
