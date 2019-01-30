@@ -7,6 +7,6 @@ It notifies you when you recieve private notififications (sent from datadeer.net
 
 If you fork it with anything cool, I'll likely merge that, because it needs more features.
 
-#TODO
+# TODO
 It needs a settings
 Maybe groupchat support
