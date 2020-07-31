@@ -44,7 +44,6 @@ public class DeerView extends AppCompatActivity {
 
                 Log.v(TAG, "Hey have my cookies: "+cookies);
 
-
                 super.onPageFinished(view, url);
             }
 
@@ -71,7 +70,7 @@ public class DeerView extends AppCompatActivity {
     boolean loadingMessages = false;
     void setState(Bundle state) {
         //where it is going to load to
-        String loadTo = "https://datadeer.net";
+        String loadTo = "https://datadeer.net?rem=true";
 
         if (loadingMessages) {
             loadingMessages = false;
@@ -93,7 +92,7 @@ public class DeerView extends AppCompatActivity {
         }
         //if from is actually a thing, go to that
         if (from != null && from.length() >= 4) {
-            loadTo = "https://datadeer.net/pchat/chat.php?user=" + from;
+            loadTo = "https://datadeer.net/chats/pchat/chatroom.php?user=" + from;
         }
 
         Log.v(TAG, "DeerView going to "+loadTo);

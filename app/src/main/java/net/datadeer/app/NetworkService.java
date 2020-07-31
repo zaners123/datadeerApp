@@ -37,21 +37,21 @@ public class NetworkService extends Service {
     //TODO save notificationShown through restart
     static ArrayList<Long> notificationsShown = new ArrayList<>();
 
-    final static String TAG = "net.datadeer.app";
+    public final static String TAG = "net.datadeer.app";
 
     //used so if it is already running, it doesn't run again
     boolean isRunning = false;
 
     //the cookie used to get your data
-    final static String PREF_FILE = "DeerPref";
+    public static final String PREF_FILE = "DeerPref";
 
     //the last state the app was in
 
     static void setCookie(Context c, String value) {
         getPreferences(c).edit().putString("cookie",value).apply();
     }
-    static SharedPreferences getPreferences(Context c) {
-        return c.getSharedPreferences(NetworkService.PREF_FILE, Context.MODE_PRIVATE);
+    public static SharedPreferences getPreferences(Context c) {
+        return c.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
     }
 
     @Nullable @Override
@@ -102,7 +102,7 @@ public class NetworkService extends Service {
             this.activityReference = new WeakReference<>(ns);
             this.serverFile = phoneGrabContext;
         }
-        /*NetworkTask(NetworkService ns, String phoneGrabContext, String gettingChatForUser, long gettingChatNum) {
+        /*FilePoster(NetworkService ns, String phoneGrabContext, String gettingChatForUser, long gettingChatNum) {
             this.activityReference = new WeakReference<>(ns);
             this.serverFile = phoneGrabContext;
 //            this.gettingChatWithUser = gettingChatForUser;
@@ -296,7 +296,7 @@ public class NetworkService extends Service {
             if (nextMessage < messagesNeeded.get(gettingChatWithUser)) {
                 Log.v(TAG, "From stack, getting message ("+nextMessage+"/"+messagesNeeded.get(gettingChatWithUser)+")");
                 //get the next message
-                NetworkTask nt = new NetworkTask(activityReference.get(), "chatGet.php",gettingChatWithUser, nextMessage);
+                FilePoster nt = new FilePoster(activityReference.get(), "chatGet.php",gettingChatWithUser, nextMessage);
                 nt.execute();
             }
         }*/
@@ -314,7 +314,6 @@ public class NetworkService extends Service {
                         nt.execute();
                     } catch (Exception ignored) {
                     }
-
                 });
             }
         };
