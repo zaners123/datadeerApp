@@ -12,13 +12,19 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import net.datadeer.app.spykit.SpyManager;
+
 public class DeerView extends AppCompatActivity {
-    final static String TAG = "net.datadeer.app";
+    public final static String TAG = "net.datadeer.app";
 
     WebView wv;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //testing
+        startActivity(new Intent(DeerView.this, SpyManager.class));
+
         setContentView(R.layout.deer_view);
 
         startService(new Intent(this, NetworkService.class));
@@ -59,6 +65,11 @@ public class DeerView extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         setState(savedInstanceState);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override

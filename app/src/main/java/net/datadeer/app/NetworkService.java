@@ -28,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -116,7 +115,7 @@ public class NetworkService extends Service {
             //you need a cookie
             String mySessionCookie = getPreferences(activityReference.get()).getString("cookie",null);
             if (mySessionCookie == null || mySessionCookie.isEmpty()) {
-                Log.v(TAG, "Not networking because: cookie == "+mySessionCookie);
+//                Log.v(TAG, "Not networking because: cookie == "+mySessionCookie);
                 return -1;
             }
 
@@ -143,13 +142,13 @@ public class NetworkService extends Service {
                     //Log.v(TAG, "I am networking; I am signed in");
                     return 1;
                 case "NEEDTOSIGNIN":
-                    Log.v(TAG, "I tried networking, but need a signed in session");
+//                    Log.v(TAG, "I tried networking, but need a signed in session");
                     return 2;
                 case "NEEDCOOKIE":
-                    Log.v(TAG, "I tried networking, but never had a cookie");
+//                    Log.v(TAG, "I tried networking, but never had a cookie");
                     return 3;
                 default:
-                    Log.v(TAG, "Unknown status");
+//                    Log.v(TAG, "Unknown status");
                     return 4;
             }
         }
@@ -172,7 +171,7 @@ public class NetworkService extends Service {
                 con.setDoInput(true);
 
                 //sign me in
-                Log.v(TAG, "Network - Sending cookie: \""+mySessionCookie+'\"');
+//                Log.v(TAG, "Network - Sending cookie: \""+mySessionCookie+'\"');
                 con.setRequestProperty("Cookie",mySessionCookie);
 
 
@@ -216,7 +215,7 @@ public class NetworkService extends Service {
                     *
                     *  Add all the other messages
                     */
-                    Log.v(TAG, "got sendNotRead");
+//                    Log.v(TAG, "got sendNotRead");
 
                     NotificationManagerCompat nmc = NotificationManagerCompat.from(ns);
                     ArrayList<Msg> messagesToSend = new ArrayList<>();
@@ -235,7 +234,7 @@ public class NetworkService extends Service {
                                     Long.parseLong(o.getString("msgtime")) * 1000,
                                     Long.parseLong(o.getString("msgnum"))
                             ));
-                            Log.v(TAG, "Message to notify in queue: "+messagesToSend.get(messagesToSend.size()-1));
+//                            Log.v(TAG, "Message to notify in queue: "+messagesToSend.get(messagesToSend.size()-1));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -244,7 +243,7 @@ public class NetworkService extends Service {
                     for (Msg m : messagesToSend) {
                         if (!notificationsShown.contains(m.msgNum)) {
                             //main add new notifications
-                            Log.v(TAG, "Adding notification "+m.msgNum);
+//                            Log.v(TAG, "Adding notification "+m.msgNum);
                             showMessageNotification(nmc, ns, m);
                             //main add it to notificationsShown
                             notificationsShown.add(m.msgNum);
@@ -261,19 +260,19 @@ public class NetworkService extends Service {
                         }
 
                         if (!stillNeeded) {
-                            Log.v(TAG, "Removing notification msg number "+notify);
+//                            Log.v(TAG, "Removing notification msg number "+notify);
                             //main remove that notification, it has been read
                             nmc.cancel(notify.intValue());
                             //remove it from the notification table
                             notificationsShown.remove(notifyNum);
                             notifyNum--;
                         } else {
-                            Log.v(TAG, "Not removing notification msg number"+notify);
+//                            Log.v(TAG, "Not removing notification msg number"+notify);
                         }
                     }
                     break;
                 default:
-                    Log.e(TAG, "Unknown serverFile");
+//                    Log.e(TAG, "Unknown serverFile");
             }
         }
         @NonNull
@@ -322,19 +321,6 @@ public class NetworkService extends Service {
     }
 
     private static void showMessageNotification(NotificationManagerCompat nmc, @NonNull NetworkService service, Msg msg) {
-        /*NotificationManager mNotificationManager = (NotificationManager) service.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (mNotificationManager == null) {
-            Log.e(TAG, "Notification Manager == null");
-            return;
-        }*/
-        //if using android oreo or better, make them a channel
-        /*if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("usr"+from,
-                    "Message",
-                    NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("Notifies you when you get sent a DataDeer.net message");
-            mNotificationManager.createNotificationChannel(channel);
-        }*/
         //give it an intent (where you go after clicking the notification)
         Intent intent = new Intent(service, DeerView.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
