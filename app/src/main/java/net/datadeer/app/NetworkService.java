@@ -8,10 +8,10 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -48,6 +48,9 @@ public class NetworkService extends Service {
 
     static void setCookie(Context c, String value) {
         getPreferences(c).edit().putString("cookie",value).apply();
+    }
+    public static String getCookie(Context c) {
+        return getPreferences(c).getString("cookie",null);
     }
     public static SharedPreferences getPreferences(Context c) {
         return c.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);

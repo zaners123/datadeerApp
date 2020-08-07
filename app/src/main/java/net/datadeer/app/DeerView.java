@@ -2,8 +2,9 @@ package net.datadeer.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
@@ -12,7 +13,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import net.datadeer.app.spykit.SpyManager;
+import net.datadeer.app.lifestream.TrackerManager;
 
 public class DeerView extends AppCompatActivity {
     public final static String TAG = "net.datadeer.app";
@@ -23,7 +24,7 @@ public class DeerView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         //testing
-        startActivity(new Intent(DeerView.this, SpyManager.class));
+        startActivity(new Intent(DeerView.this, TrackerManager.class));
 
         setContentView(R.layout.deer_view);
 

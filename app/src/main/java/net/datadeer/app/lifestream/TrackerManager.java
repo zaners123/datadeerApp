@@ -1,13 +1,12 @@
-package net.datadeer.app.spykit;
+package net.datadeer.app.lifestream;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -16,19 +15,17 @@ import net.datadeer.app.DeerView;
 import net.datadeer.app.NetworkService;
 import net.datadeer.app.R;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.TreeSet;
-import java.util.concurrent.Executor;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -39,7 +36,16 @@ import javax.net.ssl.HttpsURLConnection;
  *
  *
  * */
-public class SpyManager extends AppCompatActivity {
+public class TrackerManager extends AppCompatActivity {
+
+    private static TrackerManager spyManager = null;
+    public static TrackerManager get() {
+        if (spyManager==null) {
+            Log.e(TrackerManager.TAG,"Spy Manager Grabbed but null");
+        }
+        return spyManager;
+    }
+
 
     public static final String TAG = DeerView.TAG;
     TreeSet<String> permissionsGiven = new TreeSet<>();
@@ -78,6 +84,7 @@ public class SpyManager extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        spyManager = this;
         setContentView(R.layout.spy_manager);
 
         Toast.makeText(this,"MEMES R DOPE", Toast.LENGTH_LONG).show();
@@ -91,8 +98,9 @@ public class SpyManager extends AppCompatActivity {
         });
     }
 
-    boolean canTrack() {
-        return NetworkService.getPreferences(this).getBoolean("tracking",false);
+    public static boolean canTrack() {
+        if (spyManager==null) return false;
+        return NetworkService.getPreferences(spyManager).getBoolean("tracking",false);
     }
 
     private void setTrackingTo(boolean checked) {
@@ -108,29 +116,54 @@ public class SpyManager extends AppCompatActivity {
     final static private int PERM_REQUEST_ID = 69;
 
     void onHavingPerms() {
+
+        if (!canTrack()) return;
+
         Toast.makeText(this,"I HAVE MOST PERMISSSIONS AWOOOO", Toast.LENGTH_LONG).show();
         Log.v(DeerView.TAG,"I HAVE "+ Arrays.toString(permissionsGiven.toArray(new String[0])));
         for (String perm : permissionsGiven) {
-            SpyMethod method = SpyFactory.getSpyMethod(perm);
+            TrackerMethod method = TrackerFactory.getSpyMethod(perm);
             if (method==null) {
                 Log.v(TAG,"No spy method for "+perm);
                 continue;
             }
-            method.spy(this);
+            method.spy();
         }
     }
 
-    public void publishSpyResults(JSONObject spyResults) {
-        if (spyResults == null || !canTrack()) return;
+    public void publishSpyResults(TrackerMethod from, JSONObject spyResultsRaw) {
+        if (from==null || spyResultsRaw == null || !canTrack()) return;
+
+        JSONObject spyResults;
+        try {
+            spyResults = new JSONObject();
+            spyResults.put(from.getName(),spyResultsRaw);
+        } catch (JSONException e) {
+            return;
+        }
+
+
         Log.v(TAG,"SPY RESULTS: "+spyResults.toString());
         new Thread(() -> {
             try {
                 //todo not on main thread
-                URL url = new URL("https://datadeer.net/tracker/upload.php");
+                URL url = new URL("https://datadeer.net/lifestream/upload.php");
                 HttpsURLConnection http = (HttpsURLConnection) url.openConnection();
                 http.setDoInput(true);
                 http.setDoOutput(false);
                 http.setRequestMethod("POST");
+
+                http.setReadTimeout(8000);
+                http.setConnectTimeout(8000);
+                http.setDefaultUseCaches(false);
+                http.setUseCaches(false);
+                String cookie = NetworkService.getCookie(this);
+                if (cookie==null) {
+                    Log.e(TAG,"NO COOKIE");
+                    return;
+                }
+                http.setRequestProperty("Cookie",cookie);
+
                 BufferedOutputStream out = new BufferedOutputStream(http.getOutputStream());
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
                 writer.write(spyResults.toString());
