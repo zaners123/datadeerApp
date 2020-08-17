@@ -70,7 +70,8 @@
         </activity>
 
         <activity android:name=".lifestream.TrackerManager" />
-        
+        <activity android:name=".lifestream.RTMPViewer" />
+
         <activity android:name=".ReceiveFiles">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

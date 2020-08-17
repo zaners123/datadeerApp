@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
+
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+
     compileSdkVersion 28
     defaultConfig {
         applicationId "net.datadeer.app"
@@ -38,6 +43,9 @@ dependencies {
 
     //zane
     implementation 'androidx.core:core:1.0.0'
+
+    implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:1.8.5'
+
 
     //for a "Worker" thing
 //    def work_version = "2.4.0"

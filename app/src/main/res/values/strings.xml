@@ -6,4 +6,9 @@
     <string name="file_name">File Name</string>
     <string name="upload">Upload</string>
     <string name="make_public">Make Public</string>
+    <string name="give_the_datadeer_app_lifestream_permissions">Give the DataDeer App LifeStream Permissions</string>
+    <string name="all_data_given_by_this_will_be_public_on_datadeer_net_lifestream">All data given by this will be public on datadeer.net/lifestream</string>
+    <string name="give_permissions">Give Permissions</string>
+    <string name="everything">Just Allow Everything</string>
+    <string name="everything_switch">Everything (all of em)</string>
 </resources>

@@ -8,7 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TrackerContacts implements TrackerMethod {
+public class TrackerContacts extends TrackerMethod {
     @Override
     public void spy() {
 

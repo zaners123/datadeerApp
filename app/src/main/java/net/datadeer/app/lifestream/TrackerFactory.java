@@ -2,6 +2,9 @@ package net.datadeer.app.lifestream;
 
 import android.Manifest;
 
+/**
+ * @deprecated TrackerManager has a new and improved list
+ * */
 class TrackerFactory {
     static TrackerMethod getSpyMethod(String manifestName) {
         switch (manifestName) {

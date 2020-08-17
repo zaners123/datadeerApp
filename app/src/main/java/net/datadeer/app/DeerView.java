@@ -13,6 +13,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import net.datadeer.app.lifestream.RTMPViewer;
 import net.datadeer.app.lifestream.TrackerManager;
 
 public class DeerView extends AppCompatActivity {
@@ -23,13 +24,13 @@ public class DeerView extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //testing
+
+        // testing
         startActivity(new Intent(DeerView.this, TrackerManager.class));
 
+
         setContentView(R.layout.deer_view);
-
         startService(new Intent(this, NetworkService.class));
-
         wv = findViewById(R.id.my_deer_webview);
         wv.getSettings().setBuiltInZoomControls(true);
         wv.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
@@ -40,9 +41,12 @@ public class DeerView extends AppCompatActivity {
         wv.setWebChromeClient(new WebChromeClient() {
             //needed for javascript
         });
+
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+
                 String cookies = CookieManager.getInstance().getCookie(url);
 
                 if (cookies != null && cookies.contains("PHPSESSID")) {
@@ -50,8 +54,6 @@ public class DeerView extends AppCompatActivity {
                 }
 
                 Log.v(TAG, "Hey have my cookies: "+cookies);
-
-                super.onPageFinished(view, url);
             }
 
             //needed for following links

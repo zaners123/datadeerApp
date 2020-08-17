@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import java.util.Set;
 
 
-public class TrackerLocation implements TrackerMethod {
+public class TrackerLocation extends TrackerMethod {
 
     private TrackerManager that;
 

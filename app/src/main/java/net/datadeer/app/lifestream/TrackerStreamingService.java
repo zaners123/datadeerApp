@@ -52,7 +52,7 @@ public class TrackerStreamingService extends Service {
         }
 
         private void setupMediaRecorder() {
-            mCamera = CameraHelper.getDefaultCameraInstance();
+//            mCamera = CameraHelper.getDefaultCameraInstance();
         }
     }
 

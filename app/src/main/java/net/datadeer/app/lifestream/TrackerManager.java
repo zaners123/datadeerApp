@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -37,7 +40,6 @@ import javax.net.ssl.HttpsURLConnection;
  *
  * */
 public class TrackerManager extends AppCompatActivity {
-
     private static TrackerManager spyManager = null;
     public static TrackerManager get() {
         if (spyManager==null) {
@@ -45,12 +47,9 @@ public class TrackerManager extends AppCompatActivity {
         }
         return spyManager;
     }
-
-
     public static final String TAG = DeerView.TAG;
     TreeSet<String> permissionsGiven = new TreeSet<>();
-
-    private static final String[] EVERY_READ_PERMISSION = {
+    /*private static final String[] EVERY_READ_PERMISSION = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_NETWORK_STATE,
@@ -60,79 +59,121 @@ public class TrackerManager extends AppCompatActivity {
             Manifest.permission.READ_CALENDAR,
             Manifest.permission.READ_CALL_LOG,
             Manifest.permission.READ_CONTACTS,
-//                Manifest.permission.READ_HISTORY_BOOKMARKS,
             Manifest.permission.READ_PHONE_NUMBERS,
             Manifest.permission.READ_PHONE_STATE,
-//                Manifest.permission.READ_PROFILE,
             Manifest.permission.READ_SMS,
-//                Manifest.permission.READ_SOCIAL_STREAM,
             Manifest.permission.READ_SYNC_SETTINGS,
             Manifest.permission.READ_SYNC_STATS,
-//                Manifest.permission.READ_USER_DICTIONARY,
             Manifest.permission.READ_VOICEMAIL,
             Manifest.permission.USE_BIOMETRIC,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.BODY_SENSORS,
             Manifest.permission.GET_PACKAGE_SIZE,
-//                Manifest.permission.GET_ACCOUNT,
             Manifest.permission.GET_ACCOUNTS,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
             Manifest.permission.INTERNET,
+            //                Manifest.permission.READ_HISTORY_BOOKMARKS,
+            //                Manifest.permission.READ_PROFILE,
+            //                Manifest.permission.READ_SOCIAL_STREAM,
+            //                Manifest.permission.READ_USER_DICTIONARY,
+            //                Manifest.permission.GET_ACCOUNT,
+    };*/
+
+    LinearLayout switches;
+
+    static class TrackerOption {
+        String id;
+        String desc;
+        TrackerMethod tracker;
+        String[] perms;
+        Switch s;
+        TrackerOption(String desc, TrackerMethod tracker, String... perms) {
+            this.id= tracker.getName();
+            this.tracker = tracker;
+            this.desc = desc;
+            this.perms = perms;
+        }
+
+        /**Has all its perms
+         * @param permissionsGiven all the perms the app currently has
+         * */
+        public boolean hasPerms(TreeSet<String> permissionsGiven) {
+            for (String p : perms) {
+                if (!permissionsGiven.contains(p)) return false;
+            }
+            return true;
+        }
+    }
+
+    private static final TrackerOption[] trackers = {
+        new TrackerOption("Device Location", new TrackerLocation(), Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+        new TrackerOption("Your Phone Number", new TrackerPhoneNumbers(), Manifest.permission.READ_PHONE_NUMBERS),
+        new TrackerOption("Contacts", new TrackerContacts(), Manifest.permission.READ_CONTACTS),
     };
+
+    void addSwitch(Switch s) {
+        s.setGravity(Gravity.CENTER_HORIZONTAL);
+        s.setTextSize(16);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0,20,0,0);
+        lp.gravity = Gravity.CENTER_HORIZONTAL;
+        switches.addView(s,-1, lp);
+    }
+
+    void addEverythingSwitch() {
+        Switch s = new Switch(this);
+        s.setText(R.string.everything_switch);
+        s.setOnClickListener((e) -> {
+            for (TrackerOption opt : trackers) {
+                setTrackerTo(opt, s.isChecked());
+            }
+        });
+        addSwitch(s);
+    }
+    void addSwitches() {
+        addEverythingSwitch();
+        for (TrackerOption opt : trackers) {
+            opt.s = new Switch(this);
+            opt.s.setText(opt.desc);
+            opt.s.setOnClickListener((e) -> setTrackerTo(opt,opt.s.isChecked()));
+            addSwitch(opt.s);
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.tracker_manager);
+        switches = findViewById(R.id.check_scroll);
         spyManager = this;
-        setContentView(R.layout.spy_manager);
-
-        Toast.makeText(this,"MEMES R DOPE", Toast.LENGTH_LONG).show();
-
-        Log.v(TAG,"OPENIN MENU");
-        Switch switchGivePerms = findViewById(R.id.switchGivePerms);
-        switchGivePerms.setOnClickListener((e) -> {
-            boolean checked = switchGivePerms.isChecked();
-            setTrackingTo(checked);
-            Log.v(TAG,"SWICTH PRESSED");
-        });
+        addSwitches();
     }
 
-    public static boolean canTrack() {
+    public static boolean canTrack(TrackerMethod m) {
         if (spyManager==null) return false;
-        return NetworkService.getPreferences(spyManager).getBoolean("tracking",false);
+        return NetworkService.getPreferences(spyManager).getBoolean(m.getName(),false);
     }
 
-    private void setTrackingTo(boolean checked) {
-
-
-        NetworkService.getPreferences(this).edit().putBoolean("tracking",checked).apply();
-
-        Toast.makeText(this,"TRACKING "+(canTrack()?"ENABLED":"DISABLED"), Toast.LENGTH_LONG).show();
-
-        if (checked) requestAllPermissions();
+    private void setTrackerTo(TrackerOption opt, boolean checked) {
+        NetworkService.getPreferences(this).edit().putBoolean(opt.id,checked).apply();
+        if (checked) requestPermissions(opt.perms);
+        opt.s.setChecked(checked);
     }
 
     final static private int PERM_REQUEST_ID = 69;
 
     void onHavingPerms() {
-
-        if (!canTrack()) return;
-
-        Toast.makeText(this,"I HAVE MOST PERMISSSIONS AWOOOO", Toast.LENGTH_LONG).show();
+        Toast.makeText(this,"Perms updated", Toast.LENGTH_LONG).show();
         Log.v(DeerView.TAG,"I HAVE "+ Arrays.toString(permissionsGiven.toArray(new String[0])));
-        for (String perm : permissionsGiven) {
-            TrackerMethod method = TrackerFactory.getSpyMethod(perm);
-            if (method==null) {
-                Log.v(TAG,"No spy method for "+perm);
-                continue;
-            }
-            method.spy();
+        for(TrackerOption opt : trackers) {
+            boolean hasPerms = opt.hasPerms(permissionsGiven);
+            if (opt.s.isChecked() && !hasPerms) opt.s.setChecked(false);
         }
     }
 
     public void publishSpyResults(TrackerMethod from, JSONObject spyResultsRaw) {
-        if (from==null || spyResultsRaw == null || !canTrack()) return;
+        if (from==null || spyResultsRaw == null || !canTrack(from)) return;
 
         JSONObject spyResults;
         try {
@@ -178,9 +219,9 @@ public class TrackerManager extends AppCompatActivity {
         }).start();
     }
 
-    void requestAllPermissions() {
+    void requestPermissions(String... perms) {
         TreeSet<String> permissionsLeft = new TreeSet<>();
-        for (String perm : EVERY_READ_PERMISSION) {
+        for (String perm : perms) {
             int access = ContextCompat.checkSelfPermission(this,perm);
             if (access == PackageManager.PERMISSION_GRANTED) {
                 permissionsGiven.add(perm);
@@ -197,7 +238,7 @@ public class TrackerManager extends AppCompatActivity {
         }
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissionsList[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissionsList, int[] grantResults) {
         if (requestCode==PERM_REQUEST_ID) {
             for (int i=0;i<permissionsList.length;i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {

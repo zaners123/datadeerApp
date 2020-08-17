@@ -4,7 +4,7 @@ import android.media.MediaRecorder;
 
 import java.io.IOException;
 
-class TrackerAudio implements TrackerMethod {
+class TrackerAudio extends TrackerMethod {
     @Override public void spy() {
         MediaRecorder mic = new MediaRecorder();
         mic.setAudioSource(MediaRecorder.AudioSource.MIC);

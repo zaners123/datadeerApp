@@ -1,7 +1,16 @@
 package net.datadeer.app.lifestream;
 
-public interface TrackerMethod {
-    void spy();
+public abstract class TrackerMethod {
 
-    String getName();
+    boolean running;
+    public boolean isRunning(){return running;}
+    final void run() {
+        if (running) return;
+        running = true;
+        spy();
+    }
+
+    protected abstract void spy();
+
+    public abstract String getName();
 }

