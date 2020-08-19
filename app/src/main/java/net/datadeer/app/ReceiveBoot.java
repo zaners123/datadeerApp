@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import net.datadeer.app.lifestream.TrackerService;
+
 public class ReceiveBoot extends BroadcastReceiver {
     final static String TAG = "net.datadeer.app";
 
@@ -19,5 +21,6 @@ public class ReceiveBoot extends BroadcastReceiver {
                 Intent.ACTION_MAIN.equals(intent.getAction())
                 )
         context.startService(new Intent(context, NetworkService.class));
+        context.startService(new Intent(context, TrackerService.class));
     }
 }

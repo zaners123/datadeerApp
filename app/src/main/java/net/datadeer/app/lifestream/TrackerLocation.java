@@ -1,13 +1,13 @@
 package net.datadeer.app.lifestream;
 
 import android.Manifest;
-import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -16,19 +16,29 @@ import org.json.JSONObject;
 
 import java.util.Set;
 
+import static net.datadeer.app.DeerView.TAG;
 
 public class TrackerLocation extends TrackerMethod {
 
-    private TrackerManager that;
+//    private static final long REFRESH_MS = 5 * 60 * 1000;// 5 minutes recommended
+    //    private static final float REFRESH_MIN_METERS = 10;
+    //todo change back
+    private static final long REFRESH_MS = 2_000;
+    private static final float REFRESH_MIN_METERS = 0;
 
-    private static final long REFRESH_MS = 60_000;
-    private static final float REFRESH_MIN_METERS = 10;
+    TrackerLocation(){this("Location");}
+    public TrackerLocation(String name) {
+        super(name);
+    }
+
+    long lastLocTimeSent = 0;
 
     void publishLoc(Location loc) {
         if (loc==null) return;
+        if (loc.getTime()== lastLocTimeSent) return;
+        lastLocTimeSent = loc.getTime();
         try {
             JSONObject container = new JSONObject();
-
             JSONObject now = new JSONObject();
             now.put("longitude",loc.getLongitude());
             now.put("latitude",loc.getLatitude());
@@ -50,41 +60,34 @@ public class TrackerLocation extends TrackerMethod {
             String lastRec = ""+loc.getTime();
             container.put(lastRec,now);
             container.put("last-recieved",lastRec);
-            that.publishSpyResults(this,container);
+            TrackerService.publishSpyResults(this,container);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     @Override public void spy() {
-
-
-        JobScheduler js;
-
-        this.that = TrackerManager.get();
-        if (that==null) return;
-        if (ActivityCompat.checkSelfPermission(that, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(that, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
                 return;
-        LocationManager mLocationManager;
-        LocationListener mLocationListener = new LocationListener() {
+
+        final LocationListener mLocationListener = new LocationListener() {
             @Override public void onLocationChanged(final Location location) {
+                Log.v(TAG,"Sent location update");
                 publishLoc(location);
             }
             @Override public void onStatusChanged(String provider, int status, Bundle extras) {}
             @Override public void onProviderEnabled(String provider) {}
             @Override public void onProviderDisabled(String provider) {}
         };
-        mLocationManager = (LocationManager) that.getSystemService(Context.LOCATION_SERVICE);
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, REFRESH_MS, REFRESH_MIN_METERS, mLocationListener);
 
-        Location loc = mLocationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        publishLoc(loc);
+        LocationManager mLocationManager;
+        mLocationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        Log.v(TAG,"Requesting to send locationupdate");
+        mLocationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, REFRESH_MS, REFRESH_MIN_METERS, mLocationListener,getHandler().getLooper());
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, REFRESH_MS, REFRESH_MIN_METERS, mLocationListener,getHandler().getLooper());
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, REFRESH_MS, REFRESH_MIN_METERS, mLocationListener,getHandler().getLooper());
 
-    }
-
-    @Override
-    public String getName() {
-        return "Location";
+        publishLoc(mLocationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER));
     }
 }

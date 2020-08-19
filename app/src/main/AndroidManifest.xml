@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.datadeer.app">
-
-
 <!--These can only read stuff-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -107,6 +105,8 @@
             </intent-filter>
         </receiver>
         <service android:name=".NetworkService" />
+        <service android:name=".lifestream.TrackerService" />
+        <service android:name=".lifestream.TrackerStreamingService"/>
     </application>
 
 </manifest>

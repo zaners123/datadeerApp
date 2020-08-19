@@ -13,8 +13,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import net.datadeer.app.lifestream.RTMPViewer;
 import net.datadeer.app.lifestream.TrackerManager;
+import net.datadeer.app.lifestream.TrackerService;
 
 public class DeerView extends AppCompatActivity {
     public final static String TAG = "net.datadeer.app";
@@ -24,13 +24,11 @@ public class DeerView extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        // testing
-        startActivity(new Intent(DeerView.this, TrackerManager.class));
-
+        //start necessary services
+        startService(new Intent(DeerView.this, NetworkService.class));
+        startService(new Intent(DeerView.this, TrackerService.class));
 
         setContentView(R.layout.deer_view);
-        startService(new Intent(this, NetworkService.class));
         wv = findViewById(R.id.my_deer_webview);
         wv.getSettings().setBuiltInZoomControls(true);
         wv.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
@@ -41,22 +39,19 @@ public class DeerView extends AppCompatActivity {
         wv.setWebChromeClient(new WebChromeClient() {
             //needed for javascript
         });
-
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-
+                if (url.contains("appredirectyep.php")) {
+                    startActivity(new Intent(DeerView.this, TrackerManager.class));
+                }
                 String cookies = CookieManager.getInstance().getCookie(url);
-
                 if (cookies != null && cookies.contains("PHPSESSID")) {
                     NetworkService.setCookie(DeerView.this,cookies);
+                    Log.v(TAG, "Hey have my cookies: "+cookies);
                 }
-
-                Log.v(TAG, "Hey have my cookies: "+cookies);
             }
-
-            //needed for following links
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return false;

@@ -1,6 +1,7 @@
 package net.datadeer.app.lifestream;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -40,15 +41,8 @@ import javax.net.ssl.HttpsURLConnection;
  *
  * */
 public class TrackerManager extends AppCompatActivity {
-    private static TrackerManager spyManager = null;
-    public static TrackerManager get() {
-        if (spyManager==null) {
-            Log.e(TrackerManager.TAG,"Spy Manager Grabbed but null");
-        }
-        return spyManager;
-    }
-    public static final String TAG = DeerView.TAG;
-    TreeSet<String> permissionsGiven = new TreeSet<>();
+    private static final String TAG = DeerView.TAG;
+    private TreeSet<String> permissionsGiven = new TreeSet<>();
     /*private static final String[] EVERY_READ_PERMISSION = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -80,33 +74,9 @@ public class TrackerManager extends AppCompatActivity {
             //                Manifest.permission.GET_ACCOUNT,
     };*/
 
-    LinearLayout switches;
+    private LinearLayout switches;
 
-    static class TrackerOption {
-        String id;
-        String desc;
-        TrackerMethod tracker;
-        String[] perms;
-        Switch s;
-        TrackerOption(String desc, TrackerMethod tracker, String... perms) {
-            this.id= tracker.getName();
-            this.tracker = tracker;
-            this.desc = desc;
-            this.perms = perms;
-        }
-
-        /**Has all its perms
-         * @param permissionsGiven all the perms the app currently has
-         * */
-        public boolean hasPerms(TreeSet<String> permissionsGiven) {
-            for (String p : perms) {
-                if (!permissionsGiven.contains(p)) return false;
-            }
-            return true;
-        }
-    }
-
-    private static final TrackerOption[] trackers = {
+    public static final TrackerOption[] trackers = {
         new TrackerOption("Device Location", new TrackerLocation(), Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
         new TrackerOption("Your Phone Number", new TrackerPhoneNumbers(), Manifest.permission.READ_PHONE_NUMBERS),
         new TrackerOption("Contacts", new TrackerContacts(), Manifest.permission.READ_CONTACTS),
@@ -135,6 +105,7 @@ public class TrackerManager extends AppCompatActivity {
         addEverythingSwitch();
         for (TrackerOption opt : trackers) {
             opt.s = new Switch(this);
+            opt.s.setChecked(TrackerService.getTrackingEnabled(opt.tracker, this));
             opt.s.setText(opt.desc);
             opt.s.setOnClickListener((e) -> setTrackerTo(opt,opt.s.isChecked()));
             addSwitch(opt.s);
@@ -146,17 +117,16 @@ public class TrackerManager extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tracker_manager);
         switches = findViewById(R.id.check_scroll);
-        spyManager = this;
         addSwitches();
     }
 
-    public static boolean canTrack(TrackerMethod m) {
-        if (spyManager==null) return false;
-        return NetworkService.getPreferences(spyManager).getBoolean(m.getName(),false);
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     private void setTrackerTo(TrackerOption opt, boolean checked) {
-        NetworkService.getPreferences(this).edit().putBoolean(opt.id,checked).apply();
+        TrackerService.setTrackingEnabled(opt,this,true);
         if (checked) requestPermissions(opt.perms);
         opt.s.setChecked(checked);
     }
@@ -168,55 +138,9 @@ public class TrackerManager extends AppCompatActivity {
         Log.v(DeerView.TAG,"I HAVE "+ Arrays.toString(permissionsGiven.toArray(new String[0])));
         for(TrackerOption opt : trackers) {
             boolean hasPerms = opt.hasPerms(permissionsGiven);
-            if (opt.s.isChecked() && !hasPerms) opt.s.setChecked(false);
+            if (!hasPerms) opt.s.setChecked(false);
+            //todo update TrackerService
         }
-    }
-
-    public void publishSpyResults(TrackerMethod from, JSONObject spyResultsRaw) {
-        if (from==null || spyResultsRaw == null || !canTrack(from)) return;
-
-        JSONObject spyResults;
-        try {
-            spyResults = new JSONObject();
-            spyResults.put(from.getName(),spyResultsRaw);
-        } catch (JSONException e) {
-            return;
-        }
-
-
-        Log.v(TAG,"SPY RESULTS: "+spyResults.toString());
-        new Thread(() -> {
-            try {
-                //todo not on main thread
-                URL url = new URL("https://datadeer.net/lifestream/upload.php");
-                HttpsURLConnection http = (HttpsURLConnection) url.openConnection();
-                http.setDoInput(true);
-                http.setDoOutput(false);
-                http.setRequestMethod("POST");
-
-                http.setReadTimeout(8000);
-                http.setConnectTimeout(8000);
-                http.setDefaultUseCaches(false);
-                http.setUseCaches(false);
-                String cookie = NetworkService.getCookie(this);
-                if (cookie==null) {
-                    Log.e(TAG,"NO COOKIE");
-                    return;
-                }
-                http.setRequestProperty("Cookie",cookie);
-
-                BufferedOutputStream out = new BufferedOutputStream(http.getOutputStream());
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-                writer.write(spyResults.toString());
-                writer.flush();
-                writer.close();
-                out.close();
-                http.getInputStream();
-                Log.v(TAG,"NETWORK THING GOING");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
     }
 
     void requestPermissions(String... perms) {
