@@ -43,6 +43,7 @@ public class DeerView extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                Log.e(TAG,"URL is "+url);
                 if (url.contains("appredirectyep.php")) {
                     startActivity(new Intent(DeerView.this, TrackerManager.class));
                 }
