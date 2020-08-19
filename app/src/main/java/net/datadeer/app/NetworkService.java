@@ -335,9 +335,7 @@ public class NetworkService extends Service {
                 .setSmallIcon(R.drawable.deer_notify) // notification icon
                 .setContentTitle(msg.from+" sent you") // title for notification
                 .setContentText(msg.body)// message for notification
-
                 .setWhen(msg.timeSent)//set the time to when the message was sent to the user
-
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true) // clear notification after click
                 .setContentIntent(pendingIntent);

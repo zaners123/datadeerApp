@@ -20,11 +20,10 @@ import static net.datadeer.app.DeerView.TAG;
 
 public class TrackerLocation extends TrackerMethod {
 
-//    private static final long REFRESH_MS = 5 * 60 * 1000;// 5 minutes recommended
-    //    private static final float REFRESH_MIN_METERS = 10;
-    //todo change back
-    private static final long REFRESH_MS = 2_000;
-    private static final float REFRESH_MIN_METERS = 0;
+    private static final long REFRESH_MS = 2 * 60 * 1000;// 5 minutes recommended, we'll go for 2
+    private static final float REFRESH_MIN_METERS = 10;
+//    private static final long REFRESH_MS = 2_000;
+//    private static final float REFRESH_MIN_METERS = 0;
 
     TrackerLocation(){this("Location");}
     public TrackerLocation(String name) {
