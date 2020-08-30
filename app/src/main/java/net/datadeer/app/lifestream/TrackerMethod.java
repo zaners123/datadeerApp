@@ -2,6 +2,7 @@ package net.datadeer.app.lifestream;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 public abstract class TrackerMethod {
 
@@ -9,6 +10,7 @@ public abstract class TrackerMethod {
     private String name;
     private Context context;
     private Handler handler;
+    private Looper looper;
 
     public TrackerMethod(String name) {
         this.name = name;
@@ -24,14 +26,25 @@ public abstract class TrackerMethod {
     }
 
     public boolean isRunning(){return running;}
-    final boolean run() {
-        if (running) return false;
+    final void run() {
+        if (running) return;
         running = true;
         spy();
-        return true;
     }
 
     protected abstract void spy();
 
     public final String getName() {return name;}
+
+    public void setLooper(Looper looper) {
+        this.looper = looper;
+    }
+
+    public Looper getLooper() {
+        return looper;
+    }
+
+    protected void doneSpying() {
+        running = false;
+    }
 }

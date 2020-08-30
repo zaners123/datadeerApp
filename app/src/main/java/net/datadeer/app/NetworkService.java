@@ -8,11 +8,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -186,7 +187,7 @@ public class NetworkService extends Service {
                 int responseCode = con.getResponseCode();
                 if (responseCode < 200 || responseCode >= 300) {
                     //error response
-                    throw new IOException("HTTP error code " +responseCode);
+                    Log.e(TAG,"Got a bad responseCode "+responseCode+" when trying to update notifications");
                 }
 
                 //get the response body
@@ -323,7 +324,7 @@ public class NetworkService extends Service {
         timer.schedule(doAsynchronousTask, 0, 10_000); //execute in every x ms
     }
 
-    private static void showMessageNotification(NotificationManagerCompat nmc, @NonNull NetworkService service, Msg msg) {
+    private static void showMessageNotification(NotificationManagerCompat nmc, Context service, Msg msg) {
         //give it an intent (where you go after clicking the notification)
         Intent intent = new Intent(service, DeerView.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

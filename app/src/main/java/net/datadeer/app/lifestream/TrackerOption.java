@@ -1,6 +1,6 @@
 package net.datadeer.app.lifestream;
 
-import android.widget.Switch;
+import androidx.appcompat.widget.SwitchCompat;
 
 import java.util.TreeSet;
 
@@ -9,7 +9,7 @@ class TrackerOption {
     final String[] perms;
     final TrackerMethod tracker;
     final String desc;
-    Switch s;
+    SwitchCompat s;
 
     TrackerOption(String desc, TrackerMethod tracker, String... perms) {
         this.id = tracker.getName();

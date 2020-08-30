@@ -2,9 +2,6 @@ package net.datadeer.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
@@ -12,6 +9,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.datadeer.app.lifestream.TrackerManager;
 import net.datadeer.app.lifestream.TrackerService;
@@ -23,12 +23,12 @@ public class DeerView extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.deer_view);
 
         //start necessary services
         startService(new Intent(DeerView.this, NetworkService.class));
         startService(new Intent(DeerView.this, TrackerService.class));
 
-        setContentView(R.layout.deer_view);
         wv = findViewById(R.id.my_deer_webview);
         wv.getSettings().setBuiltInZoomControls(true);
         wv.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
@@ -73,8 +73,8 @@ public class DeerView extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        setState(null);
         super.onResume();
+        setState(null);
     }
 
     boolean loadingMessages = false;

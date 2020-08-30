@@ -7,14 +7,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.OpenableColumns;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -251,28 +251,20 @@ public class ReceiveFiles extends AppCompatActivity {
                     if (inStream!=null) inStream.close();
                     if (con != null) con.disconnect();
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
                 return 0;
             }
-
-
-
-
             return 1;
         }
         @Override
         protected void onPostExecute(Integer status) {
             ReceiveFiles ns = activityReference.get();
-
             if (ns == null || status != 1 || res.equals("")) {
                 Log.e(TAG, "File sender got error; not sent");
                 return;
             }
-
             Log.v(TAG, "FILE SENDER GOT BACK: \""+res+"\"");
-
         }
         @NonNull
         String readStream(InputStream stream, int maxReadSize) throws IOException {
